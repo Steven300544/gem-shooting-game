@@ -15,13 +15,15 @@ screenWidth = 1000
 screenHeight = 1000
 ammoLeft = 20
 ballsLeft = 0
+stage = 1
 startOver = False
+singleShotMode= True
 level = 1
 ballsInfo = {}
 a = {}
 defaltStyle = None
 clock = pygame.time.Clock()
-pygame.display.set_icon(pygame.image.load('/home/pi/python_games/gameicon.png'))
+pygame.display.set_icon(pygame.image.load('gameicon.png'))
 pygame.display.set_caption("gem shooting game")
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 font_1 = pygame.font.Font(defaltStyle, 30)
@@ -32,13 +34,15 @@ startScreenText = font_1.render("Press P to start level " + str(level), True, bl
 winText = font_2.render("You passed level " + str(level) + " with " + str(ammoLeft) + " ammo left!", True, green)
 loseText = font_2.render("out of ammo", True, red)
 loadingText = font_1.render("Loading...", True, white)
+loadingTextRect = loadingText.get_rect()
+loadingTextRect.center = (screenWidth / 2, screenHeight / 2)
 screen.blit(loadingText, (440, 475))
 pygame.display.update()
 def terminate():
     pygame.quit()
     exit()
 def startScreen():
-    global screen, clock, startScreenText, gray, font_1
+    global screen, clock, startScreenText, gray, font_1, stage, singleShotMode
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -47,28 +51,42 @@ def startScreen():
                 if event.key == K_ESCAPE or event.key == K_q:
                     terminate()
                 if event.key == K_p:
-                    print("DDD")
                     return
-##                if event.key == K_c:
-##                    code = input("Enter cheat code here: ")
-##                    for cheatCodeNumber in range(2, 6):
-##                        if code = cheatCodeList[cheatCodeNumber]:
-##                            level = cheatCodeNumber
+                if event.key == K_s:
+                    shop()
+                if event.key == K_c:
+                    cheatCode = input("Enter cheat code here: ")
+                    code = None
+                    if cheatCode.isdigit():
+                        code = int(cheatCode)
+                        if (code > 0) and (code > stage):
+                                stage = code
+                        elif (code > 0) and (code < stage):
+                          print("Do you really want to go back?")
+                    elif cheatCode == "Heavy ammo mode":
+                        if singleShotMode == True:
+                            singleShotMode = False
+                        else:
+                            print("Heavy ammo mode already activted")
         startScreenText = font_2.render("Press P to start level " + str(level), True, black)
+        startScreenTextRect = startScreenText.get_rect()
+        startScreenTextRect.center = (screenWidth / 2, screenHeight * 0.382)
         screen.fill(gray)
-        screen.blit(startScreenText, (250, 250))        
+        screen.blit(startScreenText, startScreenTextRect)        
         clock.tick(30)
         pygame.display.update()
+def shop():
+    print("Shop activated")
+    print("Shop deactivavated")
 sleep(5)
 while True:
     startScreen()
-    for q in range(1, 8):
+    for q in range(1, 7 + 1):
         ballsLeft += 1
-##      change the path of the files on the line below to your computer's path of the files
-        newBallImage = pygame.image.load("/home/pi/python_games/gem%s.png" % q)
+        newBallImage = pygame.image.load("gem%s.png" % q)
         newBallImageRect = newBallImage.get_rect()
         newBallImageRect = newBallImageRect.move(randint(0,900), randint(0, 900))
-        ballsInfo[newBallImage] = [newBallImageRect, [randint(level * 3, level * 5), randint(10, 15)]]
+        ballsInfo[newBallImage] = [newBallImageRect, [randint(level * 2 * stage, level * 3 * stage), randint(level * 3, level * 5)]]
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -82,34 +100,40 @@ while True:
                             del a[ball]
                             ballsInfo = dict(a)
                             ballsLeft -= 1
-                            print("del ball")
                             if ballsLeft == 0:
                                 ammoText = font_1.render("Ammo left: " + str(ammoLeft),  True, black)
                                 winText = font_2.render("You passed level " + str(level) + " with " + str(ammoLeft) + " ammo left!", True, green)
+                                winTextRect = winText.get_rect()
+                                winTextRect.center = (screenWidth / 2, screenHeight * 0.382)
                                 screen.fill(gray)
                                 for key in ballsInfo:
                                     screen.blit(key, ballsInfo[key][0])
                                 screen.blit(levelText, (20, 20))
                                 screen.blit(ammoText, (20, 40))
-                                screen.blit(winText, (50, 250))
+                                screen.blit(winText, winTextRect)
                                 clock.tick(30)
                                 pygame.display.update()
                                 sleep(10)
                                 if level == 6:
+                                    stage += 1
                                     level = 1
                                     ammoLeft = 20
                                 else:
                                     ammoLeft += 14
                                     level += 1
+                            elif singleShotMode == True:
+                                break
                 else:
                     ammoText = font_1.render("Ammo left: " + str(ammoLeft),  True, black)
                     loseText = font_2.render("You failed level " + str(level), True, red)
+                    loseTextRect = loseText.get_rect()
+                    loseTextRect.center = (screenWidth / 2, screenHeight * 0.382)
                     screen.fill(gray)
                     for key in ballsInfo:
                         screen.blit(key, ballsInfo[key][0])
                     screen.blit(levelText, (20, 20))
                     screen.blit(ammoText, (20, 40))
-                    screen.blit(loseText, (275, 250))
+                    screen.blit(loseText, loseTextRect)
                     clock.tick(30)
                     pygame.display.update()
                     sleep(10)
