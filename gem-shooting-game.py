@@ -16,6 +16,7 @@ screenHeight = 1000
 ammoLeft = 20
 ballsLeft = 0
 stage = 1
+coins = 0
 startOver = False
 singleShotMode= True
 level = 1
@@ -28,6 +29,7 @@ pygame.display.set_caption("gem shooting game")
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 font_1 = pygame.font.Font(defaltStyle, 30)
 font_2 = pygame.font.Font(defaltStyle, 75)
+font_3 = pygame.font.Font(defaltStyle, 37)
 ammoText = font_1.render("Ammo left: " + str(ammoLeft), True, black)
 levelText = font_1.render("level " + str(level), True, black)
 startScreenText = font_1.render("Press P to start level " + str(level), True, black)
@@ -76,8 +78,44 @@ def startScreen():
         clock.tick(30)
         pygame.display.update()
 def shop():
-    print("Shop activated")
-    print("Shop deactivavated")
+    global coins, font_1, font_2, font_3, singleShotMode, ammoLeft
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                terminate()
+            if event.type == KEYDOWN:
+                if event.key == K_b or event.key == K_s:
+                    return
+                if event.key == K_1:
+                    if coins >= 150 and singleShotMode == True:
+                        coins -= 150
+                        singleShotMode = False
+                if event.key == K_2:
+                    if coins >= 5:
+                        coins -=5
+                        ammoLeft += 1
+        shopScreenText = font_2.render("Shop", True, black)
+        shopScreenTextRect = shopScreenText.get_rect()
+        shopScreenTextRect.center = (screenWidth / 2, screenHeight * 0.1)
+        coinsScreenText = font_1.render("You have " + str(coins) + " coins", True, black)
+        coinsScreenTextRect = coinsScreenText.get_rect()
+        coinsScreenTextRect.center = (screenWidth / 2, screenHeight * 0.15)
+        if singleShotMode == True:
+            item_1ScreenText = font_3.render("1-Heavy ammo-Heavy ammo can shoot mutiple gems down at once-150 coins", True, black)
+        else:
+            item_1ScreenText = font_3.render("1-Heavy ammo-Heavy ammo can shoot mutiple gems down at once-bought", True, black)
+        item_1ScreenTextRect = item_1ScreenText.get_rect()
+        item_1ScreenTextRect.center = (screenWidth / 2, screenHeight * 0.2)
+        item_2ScreenText = font_3.render("2-Extra Ammo-Gives you extra ammo-5 coins per ammo", True, black)
+        item_2ScreenTextRect = item_2ScreenText.get_rect()
+        item_2ScreenTextRect.center = (screenWidth / 2, screenHeight * 0.275)
+        clock.tick(30)
+        screen.fill(gray)
+        screen.blit(shopScreenText, shopScreenTextRect)
+        screen.blit(coinsScreenText, coinsScreenTextRect)
+        screen.blit(item_1ScreenText, item_1ScreenTextRect)
+        screen.blit(item_2ScreenText, item_2ScreenTextRect)
+        pygame.display.update()
 sleep(5)
 while True:
     startScreen()
@@ -101,6 +139,7 @@ while True:
                             ballsInfo = dict(a)
                             ballsLeft -= 1
                             if ballsLeft == 0:
+                                coins += ammoLeft * 5
                                 ammoText = font_1.render("Ammo left: " + str(ammoLeft),  True, black)
                                 winText = font_2.render("You passed level " + str(level) + " with " + str(ammoLeft) + " ammo left!", True, green)
                                 winTextRect = winText.get_rect()
