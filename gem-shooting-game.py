@@ -6,9 +6,9 @@ from pygame.locals import *
 pygame.init()
 #         R    G    B
 white = (255, 255, 255)
-gray  = (125, 125, 125)
+gray  = (180, 180, 180)
 black =  (0,   0,   0)
-green = (50,  250, 125)
+green = (56,  140, 56)
 red   = (255,  0,   0)
 blue  =  (0,   0,  255)
 screenWidth = 1000
@@ -19,6 +19,8 @@ stage = 1
 coins = 0
 startOver = False
 singleShotMode= True
+gun = ""
+gunsBought = []
 level = 1
 ballsInfo = {}
 a = {}
@@ -53,9 +55,12 @@ def startScreen():
                 if event.key == K_ESCAPE or event.key == K_q:
                     terminate()
                 if event.key == K_p:
-                    return
+                    if gun != "":
+                        return
                 if event.key == K_s:
                     shop()
+                if event.key == K_w:
+                    wepons()
                 if event.key == K_c:
                     cheatCode = input("Enter cheat code here: ")
                     code = None
@@ -87,10 +92,6 @@ def shop():
                 if event.key == K_b or event.key == K_s:
                     return
                 if event.key == K_1:
-                    if coins >= 150 and singleShotMode == True:
-                        coins -= 150
-                        singleShotMode = False
-                if event.key == K_2:
                     if coins >= 5:
                         coins -=5
                         ammoLeft += 1
@@ -100,18 +101,66 @@ def shop():
         coinsScreenText = font_1.render("You have " + str(coins) + " coins", True, black)
         coinsScreenTextRect = coinsScreenText.get_rect()
         coinsScreenTextRect.center = (screenWidth / 2, screenHeight * 0.15)
-        if singleShotMode == True:
-            item_1ScreenText = font_3.render("1-Heavy ammo-Heavy ammo can shoot mutiple gems down at once-150 coins", True, black)
+        item_2ScreenText = font_3.render("1 - Extra Ammo - Gives you extra ammo - 5 coins per ammo", True, black)
+        item_2ScreenTextRect = item_2ScreenText.get_rect()
+        item_2ScreenTextRect.center = (screenWidth / 2, screenHeight * 0.2)
+        clock.tick(30)
+        screen.fill(gray)
+        screen.blit(shopScreenText, shopScreenTextRect)
+        screen.blit(coinsScreenText, coinsScreenTextRect)
+        screen.blit(item_2ScreenText, item_2ScreenTextRect)
+        pygame.display.update()
+def wepons():
+    global coins, font_1, font_2, font_3, singleShotMode, ammoLeft, gun, gunsBought
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                terminate()
+            if event.type == KEYDOWN:
+                if event.key == K_b or event.key == K_w:
+                    return
+                if event.key == K_1:
+                    if "SV 98" in gunsBought:
+                        gun = "SV 98"
+                        singleShotMode = False
+                    elif coins >= 150:
+                        coins -= 150
+                        gunsBought.append("SV 98")
+                        gun = "SV 98"
+                        singleShotMode = False
+                if event.key == K_2:
+                    if "Pisto" in gunsBought:
+                        gun = "Pisto"
+                        singleShotMode = True
+                    else:
+                        gunsBought.append("Pisto")
+                        gun = "Pisto"
+                        singleShotMode = True
+        weponsScreenText = font_2.render("weapons", True, black)
+        weponsScreenTextRect = weponsScreenText.get_rect()
+        weponsScreenTextRect.center = (screenWidth / 2, screenHeight * 0.1)
+        coinsScreenText = font_1.render("You have " + str(coins) + " coins", True, black)
+        coinsScreenTextRect = coinsScreenText.get_rect()
+        coinsScreenTextRect.center = (screenWidth / 2, screenHeight * 0.15)
+        if gun == "SV 98":
+            item_1ScreenText = font_3.render("1- SV 98 - SV 98 can shoot mutiple gems down at once - eqqiped", True, black)
+        elif "SV 98" in gunsBought:
+            item_1ScreenText = font_3.render("1 - SV 98 - SV 98 can shoot mutiple gems down at once - bought", True, black)
         else:
-            item_1ScreenText = font_3.render("1-Heavy ammo-Heavy ammo can shoot mutiple gems down at once-bought", True, black)
+            item_1ScreenText = font_3.render("1 - SV 98 - SV 98 can shoot mutiple gems down at once - 150 coins", True, black)
         item_1ScreenTextRect = item_1ScreenText.get_rect()
         item_1ScreenTextRect.center = (screenWidth / 2, screenHeight * 0.2)
-        item_2ScreenText = font_3.render("2-Extra Ammo-Gives you extra ammo-5 coins per ammo", True, black)
+        if gun == "Pisto":
+            item_2ScreenText = font_3.render("2 - pisto - weakest gun. can only shoot down one gem- eqqiped", True, black)
+        elif "Pisto" in gunsBought:
+            item_2ScreenText = font_3.render("2 - pisto - weakest gun. can only shoot down one gem- bought", True, black)
+        else:
+            item_2ScreenText = font_3.render("2 - pisto - weakist gun. can only shoot down one gem- free", True, black)
         item_2ScreenTextRect = item_2ScreenText.get_rect()
         item_2ScreenTextRect.center = (screenWidth / 2, screenHeight * 0.275)
         clock.tick(30)
         screen.fill(gray)
-        screen.blit(shopScreenText, shopScreenTextRect)
+        screen.blit(weponsScreenText, weponsScreenTextRect)
         screen.blit(coinsScreenText, coinsScreenTextRect)
         screen.blit(item_1ScreenText, item_1ScreenTextRect)
         screen.blit(item_2ScreenText, item_2ScreenTextRect)
